@@ -6,25 +6,25 @@
 
 ## Tasks
 
-- [ ] 1. 项目初始化与基础设施
-  - [ ] 1.1 初始化 Next.js 项目，配置 TypeScript、ESLint、Vitest、fast-check
+- [x] 1. 项目初始化与基础设施
+  - [x] 1.1 初始化 Next.js 项目，配置 TypeScript、ESLint、Vitest、fast-check
     - 使用 `create-next-app` 创建 App Router 项目
     - 安装依赖：`@langchain/core`, `@langchain/openai`, `@langchain/langgraph`, `@supabase/supabase-js`, `pdf-parse`, `zod`, `vitest`, `fast-check`
     - 配置 `vitest.config.ts`，设置 testTimeout 为 30000
     - _Requirements: 14.1, 15.1_
-  - [ ] 1.2 配置 Supabase 客户端和环境变量
+  - [x] 1.2 配置 Supabase 客户端和环境变量
     - 创建 `lib/supabase.ts`，初始化 Supabase 客户端
     - 创建 `.env.local.example`，定义 SUPABASE_URL、SUPABASE_ANON_KEY、OPENAI_API_KEY、LANGSMITH_API_KEY 等环境变量
     - _Requirements: 11.1_
-  - [ ] 1.3 创建 Supabase 数据库迁移脚本
+  - [x] 1.3 创建 Supabase 数据库迁移脚本
     - 创建 `supabase/migrations/` 目录
     - 编写 SQL 迁移文件，创建所有表（documents、document_chunks、script_metadata、tricks、characters、character_relationships、script_structures、timeline_events、scenes、acts、story_backgrounds、script_formats、act_compositions、player_scripts、player_script_sections、clues、clue_characters、reasoning_chains、reasoning_steps、misdirections、game_mechanics、special_phases、narrative_techniques、suspense_techniques、foreshadowings、emotional_designs、emotional_climaxes、emotional_arcs、chat_sessions、chat_messages）
     - 启用 pgvector 扩展，创建 vector(1536) 列
     - 为高频查询字段创建索引
     - _Requirements: 11.1, 11.4_
 
-- [ ] 2. Zod Schema 定义与数据服务层
-  - [ ] 2.1 定义所有实体的 Zod Schema
+- [x] 2. Zod Schema 定义与数据服务层
+  - [x] 2.1 定义所有实体的 Zod Schema
     - 创建 `lib/schemas/` 目录
     - 为每种实体类型定义 Zod Schema：TrickSchema、CharacterSchema、ScriptStructureSchema、StoryBackgroundSchema、ScriptFormatSchema、PlayerScriptSchema、ClueSchema、ReasoningChainSchema、MisdirectionSchema、ScriptMetadataSchema、GameMechanicsSchema、NarrativeTechniqueSchema、EmotionalDesignSchema
     - 每个 Schema 包含 confidence 字段（jsonb）和 review_status 字段
@@ -33,7 +33,7 @@
     - **Property 3: 提取结果 Schema 验证**
     - 使用 fast-check 生成随机提取结果，验证通过对应 Zod Schema
     - **Validates: Requirements 2.1, 2.2, 3.1, 3.2, 4.1, 4.2, 5.1, 5.2, 6.1, 6.2, 6.3, 7.1, 7.2, 7.3, 7.4, 8.1, 8.2, 9.1, 9.2, 10.1, 10.2, 10.3**
-  - [ ] 2.3 实现数据库服务层
+  - [x] 2.3 实现数据库服务层
     - 创建 `lib/services/document.ts`：文档和文档块的 CRUD
     - 创建 `lib/services/extraction.ts`：所有结构化数据的 CRUD，包含置信度评估和审核状态逻辑
     - 创建 `lib/services/vector.ts`：向量存储和相似度搜索
@@ -44,13 +44,13 @@
     - 使用 fast-check 生成随机置信度分数，验证 review_status 逻辑
     - **Validates: Requirements 2.4, 3.4, 4.4, 5.4, 6.5, 7.6, 8.4, 9.4, 10.5**
 
-- [ ] 3. Ingestion Pipeline 实现
-  - [ ] 3.1 实现 PDF 文本提取节点
+- [x] 3. Ingestion Pipeline 实现
+  - [x] 3.1 实现 PDF 文本提取节点
     - 创建 `lib/workflows/ingestion/nodes/parse-pdf.ts`
     - 使用 `pdf-parse` 提取文本，保留页码信息
     - 实现文件格式验证（非 PDF 拒绝）和空内容检测
     - _Requirements: 1.2, 1.5, 1.6_
-  - [ ] 3.2 实现语义分块节点
+  - [x] 3.2 实现语义分块节点
     - 创建 `lib/workflows/ingestion/nodes/chunk-text.ts`
     - 使用 LangChain `RecursiveCharacterTextSplitter`（chunk_size=1000, chunk_overlap=200）
     - 每个 chunk 附带元数据（filename, page_start, page_end, chunk_index）
@@ -63,35 +63,35 @@
     - **Property 2: 非 PDF 文件拒绝**
     - 使用 fast-check 生成随机非 PDF 内容，验证错误处理
     - **Validates: Requirements 1.5**
-  - [ ] 3.5 实现 Embedding 生成和向量存储节点
+  - [x] 3.5 实现 Embedding 生成和向量存储节点
     - 创建 `lib/workflows/ingestion/nodes/embed-chunks.ts`
     - 调用 OpenAI `text-embedding-3-small` 生成向量
     - 存入 Supabase pgvector
     - _Requirements: 1.4_
-  - [ ] 3.6 组装 Ingestion Pipeline LangGraph
+  - [x] 3.6 组装 Ingestion Pipeline LangGraph
     - 创建 `lib/workflows/ingestion/graph.ts`
     - 使用 LangGraph StateGraph 串联：parse-pdf → chunk-text → embed-chunks
     - 配置 LangSmith tracing
     - _Requirements: 1.1, 15.1, 15.2_
 
-- [ ] 4. Checkpoint - 确保摄入管线测试通过
+- [x] 4. Checkpoint - 确保摄入管线测试通过
   - 确保所有测试通过，如有问题请向用户确认。
 
-- [ ] 5. Extraction Pipeline 实现
-  - [ ] 5.1 实现 LLM 结构化提取核心函数
+- [x] 5. Extraction Pipeline 实现
+  - [x] 5.1 实现 LLM 结构化提取核心函数
     - 创建 `lib/workflows/extraction/extractor.ts`
     - 使用 LangChain `StructuredOutputParser` + Zod Schema 定义输出格式
     - 实现通用提取函数，接受 Schema 和 prompt 模板，返回结构化数据 + 置信度
     - _Requirements: 2.1, 3.1, 4.1, 5.1, 6.1, 7.1, 8.1, 9.1, 10.1_
-  - [ ] 5.2 实现各实体类型的提取 Prompt 模板
+  - [x] 5.2 实现各实体类型的提取 Prompt 模板
     - 创建 `lib/workflows/extraction/prompts/` 目录
     - 为每种实体类型编写专用 prompt：trick.ts、character.ts、script-structure.ts、story-background.ts、script-format.ts、player-script.ts、clue.ts、reasoning-chain.ts、misdirection.ts、script-metadata.ts、game-mechanics.ts、narrative-technique.ts、emotional-design.ts
     - _Requirements: 2.2, 3.2, 4.2, 5.2, 6.2, 6.3, 7.2, 7.3, 7.4, 8.2, 9.2, 10.2, 10.3_
-  - [ ] 5.3 实现置信度评估和审核状态逻辑
+  - [x] 5.3 实现置信度评估和审核状态逻辑
     - 在 `lib/workflows/extraction/confidence.ts` 中实现
     - LLM 输出每个字段的置信度分数，低于 0.7 标记为 pending_review
     - _Requirements: 2.4, 3.4, 4.4, 5.4, 6.5, 7.6, 8.4, 9.4, 10.5_
-  - [ ] 5.4 实现提取结果存储节点
+  - [x] 5.4 实现提取结果存储节点
     - 创建 `lib/workflows/extraction/nodes/store-results.ts`
     - 将提取结果写入对应的关系型表，建立与 document_chunks 的外键关联
     - 处理跨剧本的角色和诡计去重
@@ -104,7 +104,7 @@
     - **Property 6: 数据引用完整性**
     - 验证所有结构化数据的 document_id 和 chunk_id 外键引用有效
     - **Validates: Requirements 11.2**
-  - [ ] 5.7 组装 Extraction Pipeline LangGraph
+  - [x] 5.7 组装 Extraction Pipeline LangGraph
     - 创建 `lib/workflows/extraction/graph.ts`
     - 使用 LangGraph StateGraph：读取文档块 → 并行提取所有 Schema → 置信度评估 → 存储
     - 配置 LangSmith tracing 和节点级错误处理/重试
@@ -114,15 +114,15 @@
     - 模拟节点失败，验证错误记录和重试行为
     - **Validates: Requirements 15.3**
 
-- [ ] 6. Checkpoint - 确保提取管线测试通过
+- [x] 6. Checkpoint - 确保提取管线测试通过
   - 确保所有测试通过，如有问题请向用户确认。
 
-- [ ] 7. Retrieval Pipeline 实现
-  - [ ] 7.1 实现意图分析节点
+- [x] 7. Retrieval Pipeline 实现
+  - [x] 7.1 实现意图分析节点
     - 创建 `lib/workflows/retrieval/nodes/analyze-intent.ts`
     - 使用 LLM 判断查询类型（structured / semantic / hybrid），提取结构化条件
     - _Requirements: 13.1_
-  - [ ] 7.2 实现结构化查询节点
+  - [x] 7.2 实现结构化查询节点
     - 创建 `lib/workflows/retrieval/nodes/structured-search.ts`
     - 根据意图分析提取的条件，构建 Supabase 查询
     - 支持所有筛选维度：Trick 类型、Character 身份、时代设定、Act 数量、字数范围、Clue 类型、Misdirection 类型、剧本类型标签、适合人数、玩法类型、叙事结构类型
@@ -131,11 +131,11 @@
     - **Property 7: 结构化查询精确匹配**
     - 生成随机数据和查询条件，验证返回结果全部满足条件
     - **Validates: Requirements 12.1**
-  - [ ] 7.4 实现语义搜索节点
+  - [x] 7.4 实现语义搜索节点
     - 创建 `lib/workflows/retrieval/nodes/semantic-search.ts`
     - 将查询文本 embedding 后在 pgvector 中执行相似度搜索
     - _Requirements: 12.2_
-  - [ ] 7.5 实现混合检索合并节点
+  - [x] 7.5 实现混合检索合并节点
     - 创建 `lib/workflows/retrieval/nodes/merge-results.ts`
     - 使用 Reciprocal Rank Fusion (RRF) 算法合并结构化和语义搜索结果
     - 每个结果附带来源信息和相关度评分
@@ -148,7 +148,7 @@
     - **Property 9: 检索结果来源信息完整性**
     - 验证每个结果项包含非空来源信息和数值型评分
     - **Validates: Requirements 12.4**
-  - [ ] 7.8 实现 LLM 回答生成节点（含流式输出和引用标注）
+  - [x] 7.8 实现 LLM 回答生成节点（含流式输出和引用标注）
     - 创建 `lib/workflows/retrieval/nodes/generate-answer.ts`
     - 将检索结果作为上下文，使用 GPT-4o 生成回答
     - 在 prompt 中要求标注引用来源
@@ -158,7 +158,7 @@
     - **Property 10: 回答引用来源标注**
     - 验证当上下文包含来源信息时，回答中包含引用标注
     - **Validates: Requirements 13.3**
-  - [ ] 7.10 实现聊天会话上下文管理
+  - [x] 7.10 实现聊天会话上下文管理
     - 创建 `lib/services/chat.ts`
     - 实现会话创建、消息存储、历史消息加载
     - 发送消息时将历史消息作为上下文传递给 LLM
@@ -167,50 +167,50 @@
     - **Property 11: 聊天会话上下文维护**
     - 验证第 N 条消息的 LLM 上下文包含前 N-1 条消息
     - **Validates: Requirements 13.4**
-  - [ ] 7.12 实现空结果和超范围处理
+  - [x] 7.12 实现空结果和超范围处理
     - 检索结果为空时返回调整建议
     - 超出知识库范围时明确告知用户
     - _Requirements: 12.5, 13.5_
-  - [ ] 7.13 组装 Retrieval Pipeline LangGraph
+  - [x] 7.13 组装 Retrieval Pipeline LangGraph
     - 创建 `lib/workflows/retrieval/graph.ts`
     - 使用 LangGraph StateGraph：意图分析 → 路由（结构化/语义/混合）→ 结果合并 → 生成回答
     - 配置 LangSmith tracing
     - _Requirements: 15.1, 15.2_
 
-- [ ] 8. Checkpoint - 确保检索管线测试通过
+- [x] 8. Checkpoint - 确保检索管线测试通过
   - 确保所有测试通过，如有问题请向用户确认。
 
-- [ ] 9. API Routes 实现
-  - [ ] 9.1 实现文档上传 API
+- [x] 9. API Routes 实现
+  - [x] 9.1 实现文档上传 API
     - 创建 `app/api/upload/route.ts`
     - 接收 multipart/form-data，存入 Supabase Storage，触发 Ingestion Pipeline
     - 返回文档 ID 和处理状态
     - _Requirements: 1.1, 1.5, 1.6_
-  - [ ] 9.2 实现聊天 API（SSE 流式响应）
+  - [x] 9.2 实现聊天 API（SSE 流式响应）
     - 创建 `app/api/chat/route.ts`
     - 接收用户消息和 session_id，调用 Retrieval Pipeline
     - 使用 Server-Sent Events 返回流式响应
     - _Requirements: 13.1, 13.2_
-  - [ ] 9.3 实现结构化检索 API
+  - [x] 9.3 实现结构化检索 API
     - 创建 `app/api/search/route.ts`
     - 接收结构化查询条件和/或自然语言查询
     - 调用 Retrieval Pipeline，返回 JSON 结果
     - _Requirements: 12.1, 12.2, 12.3_
-  - [ ] 9.4 实现文档列表 API
+  - [x] 9.4 实现文档列表 API
     - 创建 `app/api/documents/route.ts`
     - 返回已上传文档列表及处理状态
     - _Requirements: 14.2_
 
-- [ ] 10. 前端界面实现
-  - [ ] 10.1 实现文档上传页面
+- [x] 10. 前端界面实现
+  - [x] 10.1 实现文档上传页面
     - 创建 `app/upload/page.tsx`
     - 拖拽上传和文件选择，显示上传进度和处理状态
     - _Requirements: 14.2_
-  - [ ] 10.2 实现聊天问答页面
+  - [x] 10.2 实现聊天问答页面
     - 创建 `app/chat/page.tsx` 和 `components/ChatMessage.tsx`
     - 消息列表 + 输入框，支持流式显示和引用来源标注
     - _Requirements: 14.3_
-  - [ ] 10.3 实现结构化检索页面
+  - [x] 10.3 实现结构化检索页面
     - 创建 `app/search/page.tsx`、`components/SearchFilters.tsx`、`components/ResultCard.tsx`
     - 筛选条件面板（所有维度）+ 结果卡片/列表展示
     - _Requirements: 14.4, 14.5_
@@ -219,8 +219,8 @@
     - 使用 fast-check 生成随机结果数据，验证渲染输出包含摘要和来源
     - **Validates: Requirements 14.5**
 
-- [ ] 11. 集成联调与最终检查
-  - [ ] 11.1 端到端集成：上传 PDF → 摄入 → 提取 → 检索 → 回答
+- [x] 11. 集成联调与最终检查
+  - [x] 11.1 端到端集成：上传 PDF → 摄入 → 提取 → 检索 → 回答
     - 连接所有管线，验证完整流程
     - 确保 Ingestion 完成后自动触发 Extraction
     - _Requirements: 1.1, 15.1_
@@ -229,7 +229,7 @@
     - 测试错误处理和边界情况
     - _Requirements: 1.5, 1.6, 12.5, 13.5_
 
-- [ ] 12. Final Checkpoint - 确保所有测试通过
+- [x] 12. Final Checkpoint - 确保所有测试通过
   - 确保所有测试通过，如有问题请向用户确认。
 
 ## 备注
