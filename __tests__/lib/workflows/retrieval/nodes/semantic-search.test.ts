@@ -11,10 +11,10 @@ vi.mock('../../../../../lib/services/search', () => ({
   semanticSearch: (...args: unknown[]) => mockSemanticSearch(...args),
 }));
 
-vi.mock('@langchain/openai', () => ({
-  OpenAIEmbeddings: vi.fn().mockImplementation(() => ({
-    embedQuery: mockEmbedQuery,
-  })),
+vi.mock('../../../../../lib/ai/provider', () => ({
+  createEmbeddings: vi.fn().mockResolvedValue({
+    embedQuery: (...args: unknown[]) => mockEmbedQuery(...args),
+  }),
 }));
 
 // ---------------------------------------------------------------------------

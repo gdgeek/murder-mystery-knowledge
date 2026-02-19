@@ -6,10 +6,13 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 let mockChainResult: unknown = {};
 
-vi.mock("@langchain/openai", () => ({
-  ChatOpenAI: vi.fn().mockImplementation(() => ({
-    withStructuredOutput: vi.fn().mockReturnValue({}),
-  })),
+// Mock lib/ai/provider – createStructuredModel returns a mock Runnable
+vi.mock("../../../../../lib/ai/provider", () => ({
+  createStructuredModel: vi.fn().mockResolvedValue({
+    // The Runnable returned by createStructuredModel is used as the
+    // second half of `prompt.pipe(structuredLlm)`, so the prompt mock's
+    // pipe().invoke() drives the actual invocation.
+  }),
 }));
 
 vi.mock("@langchain/core/prompts", () => ({
@@ -166,7 +169,6 @@ describe("analyzeIntent", () => {
     };
 
     const result = await analyzeIntent("test query", {
-      modelName: "gpt-4o-mini",
       temperature: 0.2,
     });
 

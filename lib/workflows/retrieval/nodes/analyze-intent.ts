@@ -8,8 +8,8 @@
 // ============================================================================
 
 import { z } from "zod";
-import { ChatOpenAI } from "@langchain/openai";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
+import { createStructuredModel } from "../../../ai/provider";
 
 // ============================================================================
 // Schema
@@ -87,7 +87,6 @@ Only include semanticQuery when there is a natural language component that needs
 // ============================================================================
 
 export interface AnalyzeIntentOptions {
-  modelName?: string;
   temperature?: number;
 }
 
@@ -101,11 +100,11 @@ export async function analyzeIntent(
   query: string,
   options: AnalyzeIntentOptions = {},
 ): Promise<IntentAnalysisResult> {
-  const { modelName = "gpt-4o", temperature = 0 } = options;
+  const { temperature = 0 } = options;
 
-  const llm = new ChatOpenAI({ modelName, temperature });
-  const structuredLlm = llm.withStructuredOutput(IntentAnalysisResultSchema, {
+  const structuredLlm = await createStructuredModel("intent", IntentAnalysisResultSchema, {
     name: "analyze_query_intent",
+    temperature,
   });
 
   const prompt = ChatPromptTemplate.fromMessages([

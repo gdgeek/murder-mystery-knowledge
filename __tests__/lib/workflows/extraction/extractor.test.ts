@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import type { z } from "zod";
 
 // ---------------------------------------------------------------------------
 // Mocks – must be declared before importing the module under test
@@ -8,14 +7,13 @@ import type { z } from "zod";
 // Capture the structured output result that the mock chain will return
 let mockChainResult: unknown = {};
 
-// Mock @langchain/openai
-vi.mock("@langchain/openai", () => ({
-  ChatOpenAI: vi.fn().mockImplementation(() => ({
-    withStructuredOutput: vi.fn().mockReturnValue({
-      // The structured LLM is piped after the prompt, so it needs to be
-      // compatible with `.pipe()` output. We mock the full chain below.
-    }),
-  })),
+// Mock lib/ai/provider – createStructuredModel returns a mock Runnable
+vi.mock("../../../../lib/ai/provider", () => ({
+  createStructuredModel: vi.fn().mockResolvedValue({
+    // The Runnable returned by createStructuredModel is used as the
+    // second half of `prompt.pipe(structuredLlm)`, so it doesn't need
+    // invoke itself here – the prompt mock's pipe().invoke() drives it.
+  }),
 }));
 
 // Mock @langchain/core/prompts – the prompt template returns a chain-like
@@ -40,6 +38,7 @@ import {
   type ExtractionResult,
 } from "../../../../lib/workflows/extraction/extractor";
 import { TrickSchema, CharacterSchema, StoryBackgroundSchema } from "../../../../lib/schemas";
+
 
 // ---------------------------------------------------------------------------
 // Tests
@@ -147,7 +146,7 @@ describe("extractStructuredData", () => {
     expect(result.data.review_status).toBe("pending_review");
   });
 
-  it("accepts custom model options", async () => {
+  it("accepts custom extractor options", async () => {
     mockChainResult = {
       era: "现代",
       location: "北京",
@@ -159,7 +158,7 @@ describe("extractStructuredData", () => {
       StoryBackgroundSchema,
       "Extract story background.",
       "现代北京的故事...",
-      { modelName: "gpt-4o-mini", temperature: 0.2 },
+      { temperature: 0.2 },
     );
 
     expect(result.data).toBeDefined();

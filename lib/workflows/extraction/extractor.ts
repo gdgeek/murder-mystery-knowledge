@@ -1,7 +1,7 @@
-import { ChatOpenAI } from "@langchain/openai";
 import { ChatPromptTemplate } from "@langchain/core/prompts";
 import type { z } from "zod";
 import { computeReviewStatus } from "../../services/utils";
+import { createStructuredModel } from "../../ai/provider";
 
 // ============================================================================
 // Types
@@ -17,8 +17,6 @@ export interface ExtractionResult<T> {
 }
 
 export interface ExtractorOptions {
-  /** OpenAI model name. Defaults to "gpt-4o". */
-  modelName?: string;
   /** Temperature for LLM. Defaults to 0 for deterministic extraction. */
   temperature?: number;
 }
@@ -49,8 +47,8 @@ IMPORTANT RULES:
 /**
  * Generic structured data extraction using LLM with Zod schema binding.
  *
- * Accepts any Zod schema, sends the text through a ChatOpenAI model with
- * `.withStructuredOutput()`, and returns validated data + confidence scores.
+ * Accepts any Zod schema, sends the text through a structured LLM model
+ * created via the provider factory, and returns validated data + confidence scores.
  */
 export async function extractStructuredData<T extends z.ZodType>(
   schema: T,
@@ -58,12 +56,11 @@ export async function extractStructuredData<T extends z.ZodType>(
   text: string,
   options: ExtractorOptions = {},
 ): Promise<ExtractionResult<z.infer<T>>> {
-  const { modelName = "gpt-4o", temperature = 0 } = options;
+  const { temperature = 0 } = options;
 
-  const llm = new ChatOpenAI({ modelName, temperature });
-
-  const structuredLlm = llm.withStructuredOutput(schema, {
+  const structuredLlm = await createStructuredModel("extraction", schema, {
     name: "extract_structured_data",
+    temperature,
   });
 
   const prompt = ChatPromptTemplate.fromMessages([
@@ -73,12 +70,11 @@ export async function extractStructuredData<T extends z.ZodType>(
 
   const chain = prompt.pipe(structuredLlm);
 
-  const result = await chain.invoke({ text });
+  const result = (await chain.invoke({ text })) as Record<string, unknown>;
 
   // Extract confidence and compute review status
   const confidence: Record<string, number> =
-    (result as Record<string, unknown>)?.confidence as Record<string, number> ??
-    {};
+    result?.confidence as Record<string, number> ?? {};
 
   const review_status = computeReviewStatus(confidence);
 

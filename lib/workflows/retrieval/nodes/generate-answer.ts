@@ -7,8 +7,8 @@
 // Requirements: 13.1, 13.2, 13.3
 // ============================================================================
 
-import { ChatOpenAI } from '@langchain/openai';
 import { ChatPromptTemplate } from '@langchain/core/prompts';
+import { createChatModel } from '../../../ai/provider';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import type { BaseMessage } from '@langchain/core/messages';
 import type { SearchResult } from '../../../services/utils';
@@ -141,11 +141,11 @@ export async function generateAnswer(
     return { answer: NO_RESULTS_MESSAGE, sources: [] };
   }
 
-  const { modelName = 'gpt-4o', temperature = 0.3 } = options;
+  const { temperature = 0.3 } = options;
   const context = buildContext(searchResults);
   const sources = extractSources(searchResults);
 
-  const llm = new ChatOpenAI({ modelName, temperature });
+  const llm = await createChatModel("chat", { temperature });
   const { messages } = buildMessages(query, context, chatHistory);
 
   const prompt = ChatPromptTemplate.fromMessages(messages);
@@ -183,7 +183,7 @@ export function generateAnswerStream(
     return { stream, sources: [] };
   }
 
-  const { modelName = 'gpt-4o', temperature = 0.3 } = options;
+  const { temperature = 0.3 } = options;
   const context = buildContext(searchResults);
   const sources = extractSources(searchResults);
 
@@ -192,7 +192,7 @@ export function generateAnswerStream(
   const stream = new ReadableStream<string>({
     async start(controller) {
       try {
-        const llm = new ChatOpenAI({ modelName, temperature, streaming: true });
+        const llm = await createChatModel("chat", { temperature });
         const prompt = ChatPromptTemplate.fromMessages(messages);
         const chain = prompt.pipe(llm).pipe(new StringOutputParser());
 

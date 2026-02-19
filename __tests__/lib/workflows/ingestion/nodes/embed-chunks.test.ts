@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import type { OpenAIEmbeddings } from "@langchain/openai";
+import type { Embeddings } from "@langchain/core/embeddings";
 import type { EmbedChunkInput } from "../../../../../lib/workflows/ingestion/nodes/embed-chunks";
 
 // Mock the vector service before importing the module under test
@@ -7,21 +7,25 @@ vi.mock("../../../../../lib/services/vector", () => ({
   storeEmbedding: vi.fn().mockResolvedValue({}),
 }));
 
-// Mock @langchain/openai so the real constructor is never called
-vi.mock("@langchain/openai", () => ({
-  OpenAIEmbeddings: vi.fn(),
+// Mock lib/ai/provider – createEmbeddings returns a mock Embeddings object
+vi.mock("../../../../../lib/ai/provider", () => ({
+  createEmbeddings: vi.fn().mockResolvedValue({
+    embedDocuments: vi.fn().mockImplementation((texts: string[]) =>
+      Promise.resolve(texts.map(() => Array(1536).fill(0.1))),
+    ),
+  }),
 }));
 
 import { embedChunks } from "../../../../../lib/workflows/ingestion/nodes/embed-chunks";
 import { storeEmbedding } from "../../../../../lib/services/vector";
 
-/** Helper: create a fake OpenAIEmbeddings instance. */
+/** Helper: create a fake Embeddings instance for DI. */
 function makeFakeEmbeddings(dimension = 1536) {
   return {
     embedDocuments: vi.fn().mockImplementation((texts: string[]) =>
       Promise.resolve(texts.map(() => Array(dimension).fill(0.1))),
     ),
-  } as unknown as OpenAIEmbeddings;
+  } as unknown as Embeddings;
 }
 
 describe("embedChunks", () => {
@@ -108,7 +112,7 @@ describe("embedChunks", () => {
     ];
     const fakeEmbeddings = {
       embedDocuments: vi.fn().mockRejectedValue(new Error("API error")),
-    } as unknown as OpenAIEmbeddings;
+    } as unknown as Embeddings;
 
     await expect(embedChunks(chunks, fakeEmbeddings)).rejects.toThrow(
       "API error",

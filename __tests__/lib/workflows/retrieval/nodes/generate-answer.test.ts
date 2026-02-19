@@ -7,8 +7,9 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 let mockChainInvokeResult = '';
 let mockStreamChunks: string[] = [];
 
-vi.mock('@langchain/openai', () => ({
-  ChatOpenAI: vi.fn().mockImplementation(() => ({})),
+// Mock lib/ai/provider – createChatModel returns a mock LLM object
+vi.mock('../../../../../lib/ai/provider', () => ({
+  createChatModel: vi.fn().mockResolvedValue({}),
 }));
 
 vi.mock('@langchain/core/prompts', () => ({
@@ -236,7 +237,6 @@ describe('generateAnswer', () => {
     mockChainInvokeResult = '回答';
 
     const result = await generateAnswer('问题', [makeResult()], undefined, {
-      modelName: 'gpt-4o-mini',
       temperature: 0.5,
     });
 
